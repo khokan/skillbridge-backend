@@ -1,0 +1,68 @@
+INSERT INTO "TutorProfile" ("id","userId","hourlyRate","currency","createdAt","updatedAt")
+VALUES (gen_random_uuid()::text, '43RW9yLZjpfvmoktWmyAZNsTwIkURwqw', 600, 'BDT', now(), now())
+ON CONFLICT ("userId") DO NOTHING;
+
+
+-- Make sure the tutor has a TutorProfile row:
+-- SELECT id, "userId" FROM "TutorProfile" WHERE "userId"='43RW9yLZjpfvmoktWmyAZNsTwIkURwqw';
+
+INSERT INTO "Booking"
+  ("id","studentId","tutorId","tutorProfileId","availabilityId","status",
+   "startTime","endTime","price","currency","createdAt","updatedAt")
+VALUES
+  (
+    'bk_20260128_01',
+    'r521XMpp9TgHaZhjW9OQtnQfc68gFL4F',
+    '43RW9yLZjpfvmoktWmyAZNsTwIkURwqw',
+    (SELECT "id" FROM "TutorProfile" WHERE "userId"='43RW9yLZjpfvmoktWmyAZNsTwIkURwqw'),
+    NULL,
+    'CONFIRMED',
+    now() + interval '2 days',
+    now() + interval '2 days 1 hour',
+    600,
+    'BDT',
+    now(),
+    now()
+  ),
+  (
+    'bk_20260128_02',
+    'r521XMpp9TgHaZhjW9OQtnQfc68gFL4F',
+    '43RW9yLZjpfvmoktWmyAZNsTwIkURwqw',
+    (SELECT "id" FROM "TutorProfile" WHERE "userId"='43RW9yLZjpfvmoktWmyAZNsTwIkURwqw'),
+    NULL,
+    'CONFIRMED',
+    now() + interval '5 days',
+    now() + interval '5 days 1 hour',
+    700,
+    'BDT',
+    now(),
+    now()
+  ),
+  (
+    'bk_20260128_03',
+    'r521XMpp9TgHaZhjW9OQtnQfc68gFL4F',
+    '43RW9yLZjpfvmoktWmyAZNsTwIkURwqw',
+    (SELECT "id" FROM "TutorProfile" WHERE "userId"='43RW9yLZjpfvmoktWmyAZNsTwIkURwqw'),
+    NULL,
+    'COMPLETED',
+    now() - interval '7 days',
+    now() - interval '7 days' + interval '1 hour',
+    500,
+    'BDT',
+    now() - interval '7 days',
+    now() - interval '7 days'
+  ),
+  (
+    'bk_20260128_04',
+    'r521XMpp9TgHaZhjW9OQtnQfc68gFL4F',
+    '43RW9yLZjpfvmoktWmyAZNsTwIkURwqw',
+    (SELECT "id" FROM "TutorProfile" WHERE "userId"='43RW9yLZjpfvmoktWmyAZNsTwIkURwqw'),
+    NULL,
+    'CANCELLED',
+    now() - interval '3 days',
+    now() - interval '3 days' + interval '1 hour',
+    650,
+    'BDT',
+    now() - interval '3 days',
+    now() - interval '3 days'
+  );

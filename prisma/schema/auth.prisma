@@ -13,6 +13,15 @@ model User {
     phone  String?
     status String? @default("ACTIVE")
 
+    // Relations
+    tutorProfile TutorProfile?
+    studentBookings Booking[] @relation("StudentBookings")
+    tutorBookings   Booking[] @relation("TutorBookings")
+    reviewsGiven    Review[]  @relation("ReviewsGiven")
+
+    @@index([role])
+    @@index([status])
+    
     @@unique([email])
     @@map("user")
 }

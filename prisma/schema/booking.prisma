@@ -1,0 +1,31 @@
+model Booking {
+  id              String        @id @default(cuid())
+  studentId       String
+  tutorId         String        // userId of tutor
+  tutorProfileId  String
+  availabilityId  String?       @unique
+  status          BookingStatus @default(CONFIRMED)
+
+  // Session details
+  startTime       DateTime
+  endTime         DateTime
+  price           Int
+  currency        String        @default("BDT")
+  notes           String?
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  student         User          @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Restrict)
+  tutor           User          @relation("TutorBookings", fields: [tutorId], references: [id], onDelete: Restrict)
+  tutorProfile    TutorProfile  @relation("TutorProfileBookings", fields: [tutorProfileId], references: [id], onDelete: Restrict)
+
+  availability    AvailabilitySlot? @relation(fields: [availabilityId], references: [id], onDelete: SetNull)
+  review          Review?
+
+  @@index([studentId, createdAt])
+  @@index([tutorId, createdAt])
+  @@index([tutorProfileId, startTime])
+  @@index([status])
+}
