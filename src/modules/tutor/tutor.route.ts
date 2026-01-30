@@ -9,6 +9,7 @@ const router = Router();
 router.use(auth(UserRole.TUTOR));
 
 router.put("/profile", TutorManageController.updateProfile);
-router.put("/availability", TutorManageController.setAvailability);
+router.get("/availability", auth(UserRole.TUTOR), TutorManageController.getAvailability);
+router.put("/availability", auth(UserRole.TUTOR), TutorManageController.setAvailability);
 
 export const tutorRoutes = router;

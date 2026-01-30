@@ -1,35 +1,77 @@
 import { Request, Response } from "express";
 import { TutorManageService } from "./tutor.service";
 
-
 export const TutorManageController = {
-  getMyProfile: async (req: Request, res: Response) => {
-    const result = await TutorManageService.getMyProfile(req.user!.id);
-    res.json(result);
-  },
-
   updateProfile: async (req: Request, res: Response) => {
-    const result = await TutorManageService.updateProfile(req.user!.id, req.body);
-    res.json(result);
+    try {
+      if (!req.user) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+      }
+
+      const updated = await TutorManageService.updateProfile(req.user.id, req.body);
+
+      return res.status(200).json({
+        success: true,
+        message: "Profile updated",
+        data: updated,
+      });
+    } catch (e: any) {
+      console.error("updateProfile error:", e);
+      return res.status(400).json({
+        success: false,
+        message: e?.message ?? "Failed to update profile",
+      });
+    }
   },
 
-  setCategories: async (req: Request, res: Response) => {
-    const result = await TutorManageService.setCategories(req.user!.id, req.body);
-    res.json(result);
+  getAvailability: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+      }
+
+      const items = await TutorManageService.getAvailability(req.user.id);
+
+      return res.status(200).json({
+        success: true,
+        data: { items },
+      });
+    } catch (e: any) {
+      console.error("getAvailability error:", e);
+      return res.status(400).json({
+        success: false,
+        message: e?.message ?? "Failed to load availability",
+      });
+    }
   },
 
   setAvailability: async (req: Request, res: Response) => {
-    const result = await TutorManageService.setAvailability(req.user!.id, req.body);
-    res.json(result);
-  },
+    try {
+      if (!req.user) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+      }
 
-  markBookingCompleted: async (req: Request, res: Response) => {
-    const result = await TutorManageService.markBookingCompleted(req.user!.id, req.params.id as string);
-    res.json(result);
-  },
+      const slots = req.body?.slots;
+      if (!Array.isArray(slots) || slots.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "slots is required (array)",
+        });
+      }
 
-  cancelBooking: async (req: Request, res: Response) => {
-    const result = await TutorManageService.cancelBooking(req.user!.id, req.params.id as string);
-    res.json(result);
+      const result = await TutorManageService.setAvailability(req.user.id, { slots });
+
+      return res.status(200).json({
+        success: true,
+        message: "Availability updated",
+        data: result,
+      });
+    } catch (e: any) {
+      console.error("setAvailability error:", e);
+      return res.status(400).json({
+        success: false,
+        message: e?.message ?? "Failed to update availability",
+      });
+    }
   },
 };

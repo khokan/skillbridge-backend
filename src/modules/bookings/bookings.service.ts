@@ -1,25 +1,50 @@
 import { prisma } from "../../lib/prisma";
 
 export const BookingsService = {
-  create: async (studentId: string, dto: { tutorProfileId: string; startTime: string; endTime: string; price: number; currency?: string }) => {
-    if (!dto.tutorProfileId) throw new Error("tutorProfileId is required");
+  create: async (studentId: string, dto: { tutorProfileId: string; availabilityId: string }) => {
+    if (!dto?.tutorProfileId) throw new Error("tutorProfileId is required");
+    if (!dto?.availabilityId) throw new Error("availabilityId is required");
 
-    const tutorProfile = await prisma.tutorProfile.findUnique({ where: { id: dto.tutorProfileId } });
-    if (!tutorProfile) throw new Error("Tutor profile not found");
-
-    // Simple booking: instant confirmed
-    return prisma.booking.create({
-      data: {
-        studentId,
-        tutorId: tutorProfile.userId,
-        tutorProfileId: tutorProfile.id,
-        status: "CONFIRMED",
-        startTime: new Date(dto.startTime),
-        endTime: new Date(dto.endTime),
-        price: dto.price,
-        currency: dto.currency ?? "BDT",
+    // 1) slot must exist + belong to this tutorProfile
+    const slot = await prisma.availabilitySlot.findUnique({
+      where: { id: dto.availabilityId },
+      select: {
+        id: true,
+        tutorProfileId: true,
+        startTime: true,
+        endTime: true,
+        isBooked: true,
+        tutorProfile: { select: { userId: true, hourlyRate: true, currency: true } },
       },
-      select: { id: true, status: true, startTime: true, endTime: true },
+    });
+
+    if (!slot) throw new Error("Slot not found");
+    if (slot.tutorProfileId !== dto.tutorProfileId) throw new Error("Slot does not match tutor profile");
+    if (slot.isBooked) throw new Error("Slot already booked");
+
+    // 2) transaction: mark slot booked + create booking
+    return prisma.$transaction(async (tx) => {
+      await tx.availabilitySlot.update({
+        where: { id: slot.id },
+        data: { isBooked: true },
+      });
+
+      const booking = await tx.booking.create({
+        data: {
+          studentId,
+          tutorId: slot.tutorProfile.userId,
+          tutorProfileId: slot.tutorProfileId,
+          availabilityId: slot.id,
+          status: "CONFIRMED",
+          startTime: slot.startTime, // ✅ valid Date from DB
+          endTime: slot.endTime,     // ✅ valid Date from DB
+          price: slot.tutorProfile.hourlyRate ?? 0,
+          currency: slot.tutorProfile.currency ?? "BDT",
+        },
+        select: { id: true, status: true, startTime: true, endTime: true },
+      });
+
+      return booking;
     });
   },
 
