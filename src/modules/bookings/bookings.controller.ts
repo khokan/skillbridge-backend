@@ -1,35 +1,52 @@
-import { Request, Response } from "express"
-import { error } from "node:console";
-import { bookingRouter } from "./bookings.route";
-import { bookingService } from "./bookings.service";
+import { Request, Response } from "express";
+import { BookingsService } from "./bookings.service";
 
-const createBooking = async (req: Request, res:Response ) => {
+export const BookingsController = {
+  create: async (req: Request, res: Response) => {
     try {
-        if(!req.user)
-             return  res.status(400).send({
-                error: "unauthorized"
-        })
+      if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
 
-        const result = await bookingService.createBooking(req.body);
-        res.status(201).json(result);
+      const booking = await BookingsService.create(req.user.id, req.body);
 
-    } catch (error) {
-            res.status(500).json({ error: "Internal Server Error" });
+      return res.status(201).json({ success: true, message: "Booking confirmed", data: booking });
+    } catch (e: any) {
+      return res.status(400).json({ success: false, message: e.message ?? "Failed to create booking" });
     }
-}
+  },
 
-const getAllBookings = async (req: Request, res:Response ) => {
+  listMineOrAll: async (req: Request, res: Response) => {
     try {
-            const posts = await bookingService.getAllBookings();
-            res.status(200).json(posts);    
-    } catch (error) {
-            res.status(500).json({ error: "Internal Server Error" });
-    }   
-}   
+      if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
 
+      const items = await BookingsService.list(req.user.id, req.user.role);
 
+      return res.json({ success: true, data: { items } });
+    } catch (e: any) {
+      return res.status(500).json({ success: false, message: e.message ?? "Failed to load bookings" });
+    }
+  },
 
-export const BookingController = {
-    createBooking,
-    getAllBookings  
-}
+  cancel: async (req: Request, res: Response) => {
+    try {``
+      if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+      const updated = await BookingsService.cancel(req.user.id, req.user.id);
+
+      return res.json({ success: true, message: "Booking cancelled", data: updated });
+    } catch (e: any) {
+      return res.status(400).json({ success: false, message: e.message ?? "Cancel failed" });
+    }
+  },
+
+  complete: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+      const updated = await BookingsService.complete(req.user.id, req.user.id);
+
+      return res.json({ success: true, message: "Session marked completed", data: updated });
+    } catch (e: any) {
+      return res.status(400).json({ success: false, message: e.message ?? "Complete failed" });
+    }
+  },
+};

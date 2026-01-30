@@ -29,7 +29,7 @@ const auth = (...roles: UserRole[]) => {
                 headers: req.headers as any
             })
 
-            console.log("Auth Middleware Session:", session);
+            // console.log("Auth Middleware Session:", session);
             if (!session) {
                 return res.status(401).json({
                     success: false,

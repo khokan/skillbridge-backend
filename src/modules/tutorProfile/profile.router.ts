@@ -14,4 +14,4 @@ router.get("/me", TutorProfileController.getMine);
 router.patch("/", TutorProfileController.update);
 router.delete("/", TutorProfileController.remove);
 
-export default router;
+export const profileRouter = router;

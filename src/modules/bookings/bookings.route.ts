@@ -1,13 +1,15 @@
-import express, { NextFunction, Request, Response } from 'express'
+import { Router } from "express";
+import auth, { UserRole } from "../../middlewares/auth";
+import { BookingsController } from "./bookings.controller";
 
-import auth, { UserRole } from '../../middlewares/auth'
-import { BookingController } from './bookings.controller'
+const router = Router();
 
+// all booking endpoints require login
+router.use(auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN));
 
+router.post("/", auth(UserRole.STUDENT), BookingsController.create);
+router.get("/", BookingsController.listMineOrAll);
+router.patch("/:id/cancel", auth(UserRole.STUDENT), BookingsController.cancel);
+router.patch("/:id/complete", auth(UserRole.TUTOR), BookingsController.complete);
 
-const router = express.Router()
-
-router.post("/", BookingController.createBooking )
-router.get("/", BookingController.getAllBookings )
-
-export const bookingRouter = router
+export const bookingRouter = router;

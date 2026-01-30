@@ -4,7 +4,10 @@ import cors from 'cors';
 import { auth } from "./lib/auth";
 import { postRouter } from "./modules/post/post.router";
 import { bookingRouter } from "./modules/bookings/bookings.route";
-import router from "./modules/tutorProfile/profile.router";
+import { profileRouter } from "./modules/tutorProfile/profile.router";
+import { tutorRoutes } from "./modules/tutor/tutor.route";
+import { categoriesRoutes } from "./modules/categories/categories.route";
+import { tutorsRoutes } from "./modules/tutors/tutors.route";
 
 
 const app: Application = express();
@@ -20,7 +23,14 @@ app.all("/api/auth/*splat", toNodeHandler(auth));
 
 app.use('/posts', postRouter)
 app.use("/api/bookings", bookingRouter);
-app.use("/api/tutor-profile", router);
+app.use("/api/tutor-profile", profileRouter);
+
+app.use("/api/categories", categoriesRoutes);
+app.use("/api/tutor", tutorRoutes);
+app.use("/api/tutors", tutorsRoutes);
+
+
+
 
 app.get("/", (req, res) => {
     res.send("Skill Bridge!");
