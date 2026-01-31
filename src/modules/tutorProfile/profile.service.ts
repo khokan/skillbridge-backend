@@ -10,7 +10,18 @@ export const TutorProfileService = {
 
   getMine: async (userId: string) => {
     return prisma.tutorProfile.findUnique({
-      where: { userId },
+    where: { userId },
+      select: {
+        id: true,
+        bio: true,
+        languages: true,
+        hourlyRate: true,
+        currency: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+        categories: { select: { category: { select: { id: true, name: true, slug: true } } } },
+      },
     });
   },
 

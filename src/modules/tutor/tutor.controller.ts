@@ -74,4 +74,22 @@ export const TutorManageController = {
       });
     }
   },
+
+  setCategories: async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ success: false, message: "Unauthorized" });
+      }
+
+      const categoryIds = req.body?.categoryIds as string[] | undefined;
+      if (!Array.isArray(categoryIds) || categoryIds.length === 0) {
+        return res.status(400).json({ success: false, message: "categoryIds is required" });
+      }
+
+      const result = await TutorManageService.setCategories(req.user.id, { categoryIds });
+      return res.json({ success: true, message: "Categories updated", data: result });
+    } catch (e: any) {
+      return res.status(400).json({ success: false, message: e?.message ?? "Failed" });
+    }
+  },
 };

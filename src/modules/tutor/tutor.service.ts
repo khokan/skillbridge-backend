@@ -18,6 +18,8 @@ type SetAvailabilityDto = {
   slots: AvailabilitySlotInput[];
 };
 
+type SetCategoriesDto = { categoryIds: string[] };
+
 export const TutorManageService = {
   updateProfile: async (userId: string, dto: UpdateProfileDto) => {
     const profile = await prisma.tutorProfile.findUnique({ where: { userId } });
@@ -136,5 +138,44 @@ export const TutorManageService = {
     });
 
     return result;
+  },
+  setCategories: async (userId: string, dto: SetCategoriesDto) => {
+    // 1) tutor must have TutorProfile
+    const profile = await prisma.tutorProfile.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+    if (!profile) throw new Error("Tutor profile not found");
+
+    const ids = dto.categoryIds;
+
+    // 2) Validate categories exist & active
+    const found = await prisma.category.findMany({
+      where: { id: { in: ids }, isActive: true },
+      select: { id: true },
+    });
+    if (found.length !== ids.length) throw new Error("Some categories are invalid or inactive");
+
+    // 3) Replace all categories
+    await prisma.$transaction(async (tx) => {
+      await tx.tutorCategory.deleteMany({
+        where: { tutorProfileId: profile.id },
+      });
+
+      await tx.tutorCategory.createMany({
+        data: ids.map((categoryId) => ({
+          tutorProfileId: profile.id,
+          categoryId,
+        })),
+      });
+    });
+
+    // 4) Return selected categories (optional)
+    const selected = await prisma.tutorCategory.findMany({
+      where: { tutorProfileId: profile.id },
+      select: { category: { select: { id: true, name: true, slug: true } } },
+    });
+
+    return { items: selected };
   },
 };
