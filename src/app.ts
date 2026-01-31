@@ -8,6 +8,7 @@ import { tutorRoutes } from "./modules/tutor/tutor.route";
 import { categoriesRoutes } from "./modules/categories/categories.route";
 import { tutorsRoutes } from "./modules/tutors/tutors.route";
 import { reviewRoutes } from "./modules/reviews/reviews.route";
+import { adminRouter } from "./modules/admin/admin.route";
 
 
 
@@ -31,6 +32,7 @@ app.use("/api/tutors", tutorsRoutes);
 
 app.use("/api/reviews", reviewRoutes);
 
+app.use("/api/admin", adminRouter);
 
 app.get("/", (req, res) => {
     res.send("Skill Bridge!");
