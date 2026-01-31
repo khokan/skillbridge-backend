@@ -13,7 +13,7 @@ export const TutorsController = {
 
   details: async (req: Request, res: Response) => {
     try {
-      const tutor = await TutorsService.details(req.params.id);
+      const tutor = await TutorsService.details(req.params.id as string);
       return res.json({ success: true, data: tutor });
     } catch (e: any) {
       return res.status(404).json({ success: false, message: e?.message ?? "Tutor not found" });

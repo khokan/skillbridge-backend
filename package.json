@@ -2,12 +2,13 @@
   "name": "prisma-blog-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "npx tsx watch src/server.ts",
     "seed:admin": "npx tsx src/scripts/seedAdmin.ts",
-    "build": "tsc"
+     "build": "prisma generate && tsup src/index.ts --format esm --platform node --target node20 --outDir api --external pg-native",
+     "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -22,7 +23,8 @@
     "@types/pg": "^8.16.0",
     "prisma": "^7.2.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+     "tsup": "^8.5.1"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.2.0",

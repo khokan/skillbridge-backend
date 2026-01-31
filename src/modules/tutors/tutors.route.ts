@@ -5,9 +5,9 @@ import auth, { UserRole } from "../../middlewares/auth";
 const router = Router();
 
 // student must be logged in to browse
-router.get("/", auth(UserRole.STUDENT), TutorsController.list);
+router.get("/",  TutorsController.list);
 
 // details page for student to view + book
-router.get("/:id", auth(UserRole.STUDENT), TutorsController.details);
+router.get("/:id", TutorsController.details);
 
 export const tutorsRoutes = router;
