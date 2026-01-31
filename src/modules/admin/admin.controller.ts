@@ -20,18 +20,21 @@ export const AdminController = {
     }
   },
 
-  updateUserStatus: async (req: Request, res: Response) => {
+updateUserStatus: async (req: Request, res: Response) => {
     try {
       const userId = req.params.id;
-      const isBanned = Boolean(req.body?.isBanned);
 
-      const updated = await AdminService.updateUserStatus(userId, isBanned);
+      const status = req.body?.status as string | undefined;
+      if (!status) {
+        return res.status(400).json({ success: false, message: "status is required" });
+      }
+
+      const updated = await AdminService.updateUserStatus(userId, status);
       return res.json({ success: true, message: "User status updated", data: updated });
     } catch (e: any) {
       return res.status(400).json({ success: false, message: e?.message ?? "Failed" });
     }
   },
-
   listBookings: async (req: Request, res: Response) => {
     try {
       const items = await AdminService.listBookings();

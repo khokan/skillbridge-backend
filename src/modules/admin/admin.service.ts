@@ -3,7 +3,10 @@ import { prisma } from "../../lib/prisma";
 type CreateCategoryDto = { name: string; slug?: string; isActive?: boolean };
 type UpdateCategoryDto = { name?: string; slug?: string; isActive?: boolean };
 
+  const ALLOWED_STATUS = new Set(["ACTIVE", "BANNED"]);
+
 export const AdminService = {
+
   stats: async () => {
     const [userCount, tutorCount, studentCount, bookingCount, categoryCount] = await Promise.all([
       prisma.user.count(),
@@ -28,27 +31,29 @@ export const AdminService = {
     };
   },
 
-  listUsers: async () => {
+listUsers: async () => {
     return prisma.user.findMany({
-      orderBy: { name: "asc" },
+      orderBy: { createdAt: "desc" },
       select: {
         id: true,
         name: true,
         email: true,
         role: true,
-        isBanned: true,
+        status: true,
         emailVerified: true,
         createdAt: true,
       },
     });
   },
 
-  updateUserStatus: async (userId: string, isBanned: boolean) => {
-    // prevent banning self? optional. Keep simple:
+updateUserStatus: async (userId: string, status: string) => {
+    const next = status.toUpperCase();
+    if (!ALLOWED_STATUS.has(next)) throw new Error("Invalid status. Use ACTIVE or BANNED");
+
     return prisma.user.update({
       where: { id: userId },
-      data: { isBanned },
-      select: { id: true, isBanned: true },
+      data: { status: next },
+      select: { id: true, status: true },
     });
   },
 
