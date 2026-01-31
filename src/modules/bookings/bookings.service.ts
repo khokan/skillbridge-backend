@@ -50,8 +50,8 @@ export const BookingsService = {
 
   list: async (userId: string, role: string) => {
     const where =
-      role === "ADMIN" ? {} :
-      role === "TUTOR" ? { tutorId: userId } :
+      role === "admin" ? {} :
+      role === "tutor" ? { tutorId: userId } :
       { studentId: userId };
 
     return prisma.booking.findMany({

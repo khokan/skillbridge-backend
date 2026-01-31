@@ -2,7 +2,6 @@ import { Router } from "express";
 import auth, { UserRole } from "../../middlewares/auth";
 import { UsersController } from "./users.controller";
 
-
 const router = Router();
 
 // student/tutor/admin all can use /me

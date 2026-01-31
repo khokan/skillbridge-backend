@@ -9,6 +9,8 @@ import { categoriesRoutes } from "./modules/categories/categories.route";
 import { tutorsRoutes } from "./modules/tutors/tutors.route";
 
 
+
+
 const app: Application = express();
 
 app.use(cors({
@@ -26,8 +28,6 @@ app.use("/api/tutor-profile", profileRouter);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/tutor", tutorRoutes);
 app.use("/api/tutors", tutorsRoutes);
-
-
 
 
 app.get("/", (req, res) => {

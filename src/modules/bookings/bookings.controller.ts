@@ -19,7 +19,6 @@ export const BookingsController = {
       if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
 
       const items = await BookingsService.list(req.user.id, req.user.role);
-
       return res.json({ success: true, data: { items } });
     } catch (e: any) {
       return res.status(500).json({ success: false, message: e.message ?? "Failed to load bookings" });
@@ -52,7 +51,16 @@ export const BookingsController = {
     try {
       if (!req.user) return res.status(401).json({ success: false, message: "Unauthorized" });
 
-      const updated = await BookingsService.complete(req.user.id, req.user.id);
+      // ✅ bookingId comes from URL param
+      const bookingId = req.params.id;
+      if (!bookingId) {
+        return res.status(400).json({
+          success: false,
+          message: "bookingId is required",
+        });
+    }
+
+      const updated = await BookingsService.complete(req.user.id, bookingId as string);
 
       return res.json({ success: true, message: "Session marked completed", data: updated });
     } catch (e: any) {

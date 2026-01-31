@@ -7,4 +7,4 @@ const router = Router();
 
 router.post("/", auth(UserRole.STUDENT), ReviewsController.create);
 
-export default router;
+export const reviewRoutes = router;
