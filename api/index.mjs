@@ -836,7 +836,6 @@ var CategoriesController = {
   list: async (_req, res) => {
     const result = await CategoriesService.list();
     res.json(result);
-    console.log(result);
   }
 };
 

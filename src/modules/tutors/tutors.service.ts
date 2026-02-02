@@ -1,8 +1,48 @@
+import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
+const SORTS = ["rating", "price_asc", "price_desc", "newest"] as const;
+export type TutorSort = (typeof SORTS)[number];
+
+export type ListArgs = {
+  q?: string;
+  category?: string; // slug
+};
+
+
 export const TutorsService = {
-  list: async () => {
-    return prisma.tutorProfile.findMany({
+    list: async (args: ListArgs = {}) => {
+    const q = (args.q ?? "").trim();
+    const categorySlug = (args.category ?? "").trim();
+
+    const where: Prisma.TutorProfileWhereInput = {
+      ...(q
+        ? {
+            OR: [
+              { headline: { contains: q, mode: "insensitive" } },
+              { bio: { contains: q, mode: "insensitive" } },
+              { user: { name: { contains: q, mode: "insensitive" } } },
+            ],
+          }
+        : {}),
+      ...(categorySlug
+        ? {
+            categories: {
+              some: {
+                category: {
+                  slug: categorySlug,
+                  isActive: true,
+                },
+              },
+            },
+          }
+        : {}),
+    };
+
+    const items = await prisma.tutorProfile.findMany({
+      where,
+      orderBy: { avgRating: "desc" },
+      take: 100,
       select: {
         id: true,
         headline: true,
@@ -11,9 +51,11 @@ export const TutorsService = {
         avgRating: true,
         reviewCount: true,
         user: { select: { id: true, name: true, image: true } },
+        categories: { select: { category: { select: { name: true, slug: true } } } },
       },
-      orderBy: { avgRating: "desc" },
     });
+
+    return { items };
   },
 
   details: async (tutorProfileId: string) => {

@@ -180,7 +180,6 @@ export const TutorManageService = {
   },
   
  listReviewbyBookingId: async (tutorId: string, bookingId: string) => {
-  console.log(tutorId,bookingId)
   const profile = await prisma.tutorProfile.findUnique({
     where: { userId: tutorId },
     select: { id: true, avgRating: true, reviewCount: true },

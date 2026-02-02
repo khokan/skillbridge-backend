@@ -1,13 +1,30 @@
 import { Request, Response } from "express";
-import { TutorsService } from "./tutors.service";
+import { TutorsService, TutorSort, ListArgs } from "./tutors.service";
+
+const SORTS: readonly TutorSort[] = ["rating", "price_asc", "price_desc", "newest"] as const;
+
+const toNum = (v: unknown) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+};
 
 export const TutorsController = {
-  list: async (req: Request, res: Response) => {
+ list: async (req: Request, res: Response) => {
     try {
-      const items = await TutorsService.list();
-      return res.json({ success: true, data: { items } });
+      const q = (req.query.q ?? "").toString();
+      const category = (req.query.category ?? "").toString(); // slug
+
+      const args: ListArgs = {};
+      if (q.trim()) args.q = q.trim();
+      if (category.trim()) args.category = category.trim();
+     
+      const data = await TutorsService.list(args);
+      return res.json({ success: true, data });
     } catch (e: any) {
-      return res.status(500).json({ success: false, message: e?.message ?? "Failed to load tutors" });
+      return res.status(400).json({
+        success: false,
+        message: e?.message ?? "Failed",
+      });
     }
   },
 

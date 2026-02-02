@@ -6,6 +6,6 @@ export const CategoriesController = {
   list: async (_req: Request, res: Response) => {
     const result = await CategoriesService.list();
     res.json(result);
-    console.log(result)
   },
+  
 };
