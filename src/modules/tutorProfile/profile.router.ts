@@ -7,7 +7,7 @@ import { Role } from "../../../generated/prisma/enums";
 
 const router = Router();
 
-router.use(auth(UserRole.TUTOR));
+router.use(auth(UserRole.TUTOR, UserRole.STUDENT));
 
 router.post("/", TutorProfileController.create);
 router.get("/me", TutorProfileController.getMine);

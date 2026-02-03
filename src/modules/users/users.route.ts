@@ -8,4 +8,4 @@ const router = Router();
 router.get("/me", auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN), UsersController.me);
 router.patch("/me", auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN), UsersController.updateMe);
 
-export default router;
+export const userRouter = router;

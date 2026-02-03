@@ -11,6 +11,7 @@ import { reviewRoutes } from "./modules/reviews/reviews.route";
 import { adminRouter } from "./modules/admin/admin.route";
 import { notFound } from "./middlewares/notFound";
 import errorHandler from "./middlewares/globalErrorHandler";
+import { userRouter } from "./modules/users/users.route";
 
 
 
@@ -40,6 +41,8 @@ app.use("/api/tutors", tutorsRoutes);
 app.use("/api/reviews", reviewRoutes);
 
 app.use("/api/admin", adminRouter);
+
+app.use("/api/users", userRouter);
 
 app.get("/", (req, res) => {
     res.send("Skill Bridge!");
