@@ -9,15 +9,19 @@ import { categoriesRoutes } from "./modules/categories/categories.route";
 import { tutorsRoutes } from "./modules/tutors/tutors.route";
 import { reviewRoutes } from "./modules/reviews/reviews.route";
 import { adminRouter } from "./modules/admin/admin.route";
+import { notFound } from "./middlewares/notFound";
+import errorHandler from "./middlewares/globalErrorHandler";
 
 
 
 const app: Application = express();
 
+
 app.use(cors({
     origin: process.env.APP_URL || "http://localhost:3000", // client side url
     credentials: true
 }))
+
 
 app.use(express.json());
 
@@ -41,5 +45,7 @@ app.get("/", (req, res) => {
     res.send("Skill Bridge!");
 });
 
+app.use(notFound)
+app.use(errorHandler)
 
 export default app;

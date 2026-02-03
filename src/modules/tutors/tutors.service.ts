@@ -30,7 +30,7 @@ export const TutorsService = {
             categories: {
               some: {
                 category: {
-                  slug: categorySlug,
+                  name: categorySlug,
                   isActive: true,
                 },
               },
@@ -45,6 +45,7 @@ export const TutorsService = {
       take: 100,
       select: {
         id: true,
+        bio:true,
         headline: true,
         hourlyRate: true,
         currency: true,
