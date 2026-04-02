@@ -61,23 +61,7 @@ export const SubscriptionController = {
       });
     }
   },
-
-  stripeWebhook: async (req: Request, res: Response) => {
-    try {
-      const signature = req.headers["stripe-signature"];
-
-      if (!signature || typeof signature !== "string") {
-        return res.status(400).send("Missing stripe-signature header");
-      }
-
-      await SubscriptionService.verifyWebhookAndProcess(req.body, signature);
-
-      return res.status(200).json({ received: true });
-    } catch (e: any) {
-      return res.status(400).send(`Webhook Error: ${e.message}`);
-    }
-  },
-
+ 
   listMineOrAll: async (req: Request, res: Response) => {
     try {
       if (!req.user) {

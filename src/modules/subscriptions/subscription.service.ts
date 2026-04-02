@@ -78,9 +78,41 @@ export const SubscriptionService = {
         planId,
         status: "PENDING",
       },
-      include: {
-        payment: true,
-        plan: true,
+      select: {
+        id: true,
+        studentId: true,
+        planId: true,
+        status: true,
+        paymentStatus: true,
+        startDate: true,
+        endDate: true,
+        paymentProvider: true,
+        externalRef: true,
+        createdAt: true,
+        plan: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            description: true,
+            price: true,
+            currency: true,
+            interval: true,
+            isActive: true,
+          },
+        },
+        payment: {
+          select: {
+            id: true,
+            amount: true,
+            transactionId: true,
+            status: true,
+            invoiceUrl: true,
+            paymentGatewayData: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -142,8 +174,10 @@ export const SubscriptionService = {
   initiatePayment: async (studentId: string, subscriptionId: string) => {
     const subscription = await prisma.subscription.findUnique({
       where: { id: subscriptionId },
-      include: {
-        payment: true,
+      select: {
+        id: true,
+        studentId: true,
+        status: true,
         plan: {
           select: {
             id: true,
@@ -154,6 +188,12 @@ export const SubscriptionService = {
             currency: true,
             interval: true,
             isActive: true,
+          },
+        },
+        payment: {
+          select: {
+            id: true,
+            status: true,
           },
         },
       },
@@ -171,10 +211,36 @@ export const SubscriptionService = {
       throw new Error("Subscription is cancelled");
     }
 
+     const stripe = getStripeClient();
+    const frontendUrl = process.env.FRONTEND_URL || process.env.APP_URL || "http://localhost:3000";
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items: [
+        {
+          price_data: {
+            currency: ("BDT").toLowerCase(),
+            product_data: {
+              name: `Session with ${subscription.plan?.name}`,
+            },
+            unit_amount: subscription.plan?.price * 100,
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        subscriptionId: subscription.id,
+        paymentId: subscription.payment.id,
+      },
+      success_url: `${frontendUrl}/dashboard/payment/payment-success?subscription_id=${subscription.id}&payment_id=${subscription.payment.id}`,
+      cancel_url: `${frontendUrl}/dashboard/bookings?error=payment_cancelled`,
+    });
+
    
     return {
-      subscriptionId: subscription.id,
-      paymentId: subscription.payment.id,
+      paymentUrl: session.url,
+      sessionId: session.id,
     };
   },
 
@@ -217,7 +283,6 @@ export const SubscriptionService = {
             amount: true,
             transactionId: true,
             status: true,
-            stripeEventId: true,
             invoiceUrl: true,
             paymentGatewayData: true,
           },
@@ -258,7 +323,6 @@ export const SubscriptionService = {
             amount: true,
             transactionId: true,
             status: true,
-            stripeEventId: true,
             invoiceUrl: true,
             paymentGatewayData: true,
           },
@@ -274,8 +338,17 @@ export const SubscriptionService = {
   cancel: async (studentId: string, subscriptionId: string) => {
     const subscription = await prisma.subscription.findUnique({
       where: { id: subscriptionId },
-      include: {
-        payment: true,
+      select: {
+        id: true,
+        studentId: true,
+        status: true,
+        paymentStatus: true,
+        payment: {
+          select: {
+            id: true,
+            status: true,
+          },
+        },
       },
     });
 

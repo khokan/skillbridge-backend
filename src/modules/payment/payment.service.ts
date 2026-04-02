@@ -1,17 +1,7 @@
 import Stripe from "stripe";
-import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../lib/prisma";
 
 const handlerStripeWebhookEvent = async (event: Stripe.Event) => {
-    const existingPayment = await prisma.payment.findFirst({
-        where: { stripeEventId: event.id },
-    });
-
-    if (existingPayment) {
-        console.log(`Event ${event.id} already processed. Skipping`);
-        return { message: `Event ${event.id} already processed. Skipping` };
-    }
-
     switch (event.type) {
         case "checkout.session.completed": {
             const session = event.data.object as any;
@@ -28,6 +18,7 @@ const handlerStripeWebhookEvent = async (event: Stripe.Event) => {
                 select: {
                     id: true,
                     subscriptionId: true,
+                    status: true,
                 },
             });
 
@@ -42,6 +33,11 @@ const handlerStripeWebhookEvent = async (event: Stripe.Event) => {
             }
 
             const isPaid = session.payment_status === "paid";
+
+            if (payment.status === "PAID") {
+                console.log(`Payment ${paymentId} already marked as PAID. Skipping duplicate webhook processing.`);
+                return { message: `Payment ${paymentId} already processed` };
+            }
             
 
             await prisma.$transaction(async (tx) => {
@@ -50,7 +46,6 @@ const handlerStripeWebhookEvent = async (event: Stripe.Event) => {
                     data: {
                         status: isPaid ? "PAID" : "UNPAID",
                         paymentGatewayData: session,
-                        stripeEventId: event.id,
                     },
                 });
 
@@ -58,6 +53,7 @@ const handlerStripeWebhookEvent = async (event: Stripe.Event) => {
                     where: { id: subscriptionId },
                     data: {
                         paymentStatus: isPaid ? "PAID" : "UNPAID",
+                        status: isPaid ? "ACTIVE" : "PAST_DUE",
                     },
                 });
             });
