@@ -9,6 +9,7 @@ import { categoriesRoutes } from "./modules/categories/categories.route";
 import { tutorsRoutes } from "./modules/tutors/tutors.route";
 import { reviewRoutes } from "./modules/reviews/reviews.route";
 import { adminRouter } from "./modules/admin/admin.route";
+import { ragRoutes } from "./modules/rag/rag.route";
 import { notFound } from "./middlewares/notFound";
 import errorHandler from "./middlewares/globalErrorHandler";
 import { userRouter } from "./modules/users/users.route";
@@ -41,6 +42,8 @@ app.use("/api/tutors", tutorsRoutes);
 app.use("/api/reviews", reviewRoutes);
 
 app.use("/api/admin", adminRouter);
+
+app.use("/api/rag", ragRoutes);
 
 app.use("/api/users", userRouter);
 
