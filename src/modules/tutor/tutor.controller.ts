@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { TutorManageService } from "./tutor.service";
+import { RAGService } from "../rag/rag.service";
 
 export const TutorManageController = {
   updateProfile: async (req: Request, res: Response) => {
@@ -60,6 +61,14 @@ export const TutorManageController = {
       }
 
       const result = await TutorManageService.setAvailability(req.user.id, { slots });
+
+      // update RAG index for this tutor profile asynchronously
+      try {
+        const ragService = new RAGService();
+        await ragService.indexTutorProfileByUserId(req.user.id);
+      } catch (err) {
+        console.warn("RAG indexing failed after availability update:", err);
+      }
 
       return res.status(200).json({
         success: true,

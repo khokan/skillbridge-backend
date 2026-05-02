@@ -31,6 +31,7 @@ export const TutorProfileService = {
         userId: true,
         createdAt: true,
         updatedAt: true,
+        experienceYrs: true,
         categories: { select: { category: { select: { id: true, name: true, slug: true } } } },
       },
     });

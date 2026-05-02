@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { RAGService } from "../rag/rag.service";
 
 type CreateReviewDto = {
   bookingId: string;
@@ -27,7 +28,7 @@ export const ReviewsService = {
     });
     if (exists) throw new Error("Review already submitted");
 
-    return prisma.review.create({
+    const created = await prisma.review.create({
       data: {
         bookingId: booking.id,
         tutorProfileId: booking.tutorProfileId,
@@ -37,5 +38,17 @@ export const ReviewsService = {
       },
       select: { id: true },
     });
+
+    // async re-index tutor profile for RAG; don't block the review creation on failures
+    try {
+      const ragService = new RAGService();
+      if (booking.tutorProfileId) {
+        await ragService.indexTutorProfileById(booking.tutorProfileId);
+      }
+    } catch (err) {
+      console.warn("RAG indexing failed after review create:", err);
+    }
+
+    return created;
   },
 };
