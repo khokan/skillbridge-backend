@@ -1,11 +1,13 @@
 import app from "./app";
 import { prisma } from "./lib/prisma";
+import { seedSuperAdmin } from "./utils/seed";
 
 const PORT = process.env.PORT || 3000;
 
 async function main() {
     try {
          await prisma.$connect();
+         await seedSuperAdmin();
         console.log("Connected to the database successfully.");
 
         app.listen(PORT, () => {

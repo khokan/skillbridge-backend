@@ -8,7 +8,7 @@ const router = Router();
 router.use(auth(UserRole.STUDENT, UserRole.TUTOR, UserRole.ADMIN));
 
 router.post("/", auth(UserRole.STUDENT), BookingsController.create);
-router.get("/",  auth(UserRole.STUDENT),BookingsController.listMineOrAll);
+router.get("/",  auth(UserRole.STUDENT, UserRole.TUTOR),BookingsController.listMineOrAll);
 router.patch("/:id/cancel", auth(UserRole.STUDENT), BookingsController.cancel);
 router.patch("/:id/complete", auth(UserRole.TUTOR), BookingsController.complete);
 

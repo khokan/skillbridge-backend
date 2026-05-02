@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+   {
+  "name": "Debug: Express (tsx, ESM)",
+  "type": "node",
+  "request": "launch",
+  "cwd": "${workspaceFolder}",
+  "runtimeExecutable": "node",
+  "runtimeArgs": [
+    "--inspect=9230",
+    "./node_modules/tsx/dist/cli.mjs",
+    "watch",
+    "src/server.ts"
+  ],
+  "envFile": "${workspaceFolder}/.env",
+  "console": "integratedTerminal",
+  "skipFiles": ["<node_internals>/**"]
+}
+
+  ]
+}

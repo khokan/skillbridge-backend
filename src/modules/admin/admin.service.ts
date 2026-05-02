@@ -20,9 +20,9 @@ export const AdminService = {
       totalCategories,
     ] = await Promise.all([
       prisma.user.count(),
-      prisma.user.count({ where: { role: "student" } }),
-      prisma.user.count({ where: { role: "tutor" } }),
-      prisma.user.count({ where: { role: "admin" } }),
+      prisma.user.count({ where: { role: "STUDENT" } }),
+      prisma.user.count({ where: { role: "TUTOR" } }),
+      prisma.user.count({ where: { role: "ADMIN" } }),
       prisma.user.count({ where: { status: "ACTIVE" } }),
       prisma.user.count({ where: { status: "BANNED" } }),
       prisma.booking.count(),
